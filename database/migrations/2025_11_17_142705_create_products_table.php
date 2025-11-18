@@ -12,16 +12,31 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('products', function (Blueprint $table) {
-            $table->id();
+            $table->id(); // PRIMARY KEY
+
             $table->string('name');
+            $table->string('brand');
             $table->text('description');
-            $table->decimal('price', 10, 2);
-            $table->string('category');
-            $table->string('image_url')->nullable();
-            $table->string('image_public_id')->nullable();
+
+            $table->string('processor');
+            $table->string('ram_gb');
+            $table->string('storage_gb');
+            $table->string('storage_type');
+
+            $table->string('gpu')->nullable();
+
+            $table->decimal('display_size_inch', 4, 1);
+            $table->string('display_resolution'); // diperbaiki: 'display_reolution' -> 'display_resolution'
+
+            $table->integer('price');
+            $table->string('image')->nullable();
+
+            $table->boolean('is_active')->default(true);
+
             $table->timestamps();
         });
     }
+
 
     public function down(): void
     {

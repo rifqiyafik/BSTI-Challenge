@@ -7,88 +7,49 @@ use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $products = Product::latest()->paginate(10);
-        return view('products.index', compact('products'));
-    }
+        $query = Product::active();
 
-    public function create()
-    {
-        return view('products.create');
-    }
-
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'required|string',
-            'price' => 'required|numeric|min:0',
-            'category' => 'required|string|max:255',
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif',
-        ]);
-
-        // Upload ke storage/app/public/products
-        if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('products', 'public');
-            $validated['image_url'] = $path;
+        // Search
+        if ($request->has('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'ilike', "%{$search}%")
+                    ->orWhere('brand', 'ilike', "%{$search}%")
+                    ->orWhere('processor', 'ilike', "%{$search}%");
+            });
         }
 
-        Product::create($validated);
+        // Filter by brand
+        if ($request->has('brand') && $request->brand != '') {
+            $query->where('brand', $request->brand);
+        }
 
-        return redirect()->route('products.index')
-            ->with('success', 'Product created successfully.');
+        // Sort
+        $sort = $request->get('sort', 'latest');
+        switch ($sort) {
+            case 'price_low':
+                $query->orderBy('price', 'asc');
+                break;
+            case 'price_high':
+                $query->orderBy('price', 'desc');
+                break;
+            case 'name':
+                $query->orderBy('name', 'asc');
+                break;
+            default:
+                $query->latest();
+        }
+
+        $products = $query->paginate(12);
+        $brands = Product::active()->distinct()->pluck('brand');
+
+        return view('products.index', compact('products', 'brands'));
     }
 
     public function show(Product $product)
     {
         return view('products.show', compact('product'));
-    }
-
-    public function edit(Product $product)
-    {
-        return view('products.edit', compact('product'));
-    }
-
-    public function update(Request $request, Product $product)
-    {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'required|string',
-            'price' => 'required|numeric|min:0',
-            'category' => 'required|string|max:255',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-        ]);
-
-        // Jika ada gambar baru
-        if ($request->hasFile('image')) {
-
-            // Hapus gambar lama jika ada
-            if ($product->image_url && file_exists(public_path('storage/' . $product->image_url))) {
-                unlink(public_path('storage/' . $product->image_url));
-            }
-
-            // Upload baru
-            $path = $request->file('image')->store('products', 'public');
-            $validated['image_url'] = $path;
-        }
-
-        $product->update($validated);
-
-        return redirect()->route('products.index')
-            ->with('success', 'Product updated successfully.');
-    }
-
-    public function destroy(Product $product)
-    {
-        // Hapus file lokal
-        if ($product->image_url && file_exists(public_path('storage/' . $product->image_url))) {
-            unlink(public_path('storage/' . $product->image_url));
-        }
-
-        $product->delete();
-
-        return redirect()->route('products.index')
-            ->with('success', 'Product deleted successfully.');
     }
 }
