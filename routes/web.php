@@ -47,6 +47,7 @@ Route::middleware(['auth', 'can:view products'])->group(function () {
 // ========================================================================
 Route::middleware(['auth', 'role:admin'])
     ->prefix('admin')
+    ->name('admin.')
     ->group(function () {
 
         Route::get('/', fn() => redirect()->route('admin.dashboard'));
