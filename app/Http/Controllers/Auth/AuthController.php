@@ -31,7 +31,7 @@ class AuthController extends Controller
                 return redirect('/admin/dashboard');
             }
 
-            return redirect('/products'); 
+            return redirect('/products');
         }
 
 

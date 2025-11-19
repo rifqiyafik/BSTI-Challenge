@@ -29,7 +29,8 @@
             <ul class="space-y-4">
                 <li>
                     <a href="{{ route('admin.dashboard') }}"
-                       class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/60 transition-all duration-300">
+                        class="flex items-center gap-3 p-3 rounded-xl transition-all
+                        {{ request()->routeIs('admin.dashboard') ? 'bg-white/70 font-semibold' : 'hover:bg-white/60' }}">
                         <i class="fa-solid fa-chart-line text-purple-600"></i>
                         <span>Dashboard</span>
                     </a>
@@ -37,7 +38,8 @@
 
                 <li>
                     <a href="{{ route('admin.products.index') }}"
-                       class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/60 transition-all duration-300">
+                        class="flex items-center gap-3 p-3 rounded-xl transition-all
+                        {{ request()->routeIs('admin.products.*') ? 'bg-white/70 font-semibold' : 'hover:bg-white/60' }}">
                         <i class="fa-solid fa-box text-blue-600"></i>
                         <span>Products</span>
                     </a>
