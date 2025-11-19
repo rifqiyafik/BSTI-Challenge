@@ -8,11 +8,8 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
-
-/*--------------------------------------------------------------------------
-| HOME REDIRECT
-|--------------------------------------------------------------------------*/
-
+// =========================================================================
+// HOME REDIRECT
 Route::get('/', function () {
     if (auth()->check()) {
         if (auth()->user()->hasRole('admin')) {
@@ -20,13 +17,13 @@ Route::get('/', function () {
         }
         return redirect()->route('products.index');
     }
+
     return redirect()->route('login');
 })->name('home');
 
 
-/*--------------------------------------------------------------------------
-| AUTH ROUTES (GUEST ONLY)
-|--------------------------------------------------------------------------*/
+// =========================================================================
+// AUTH ROUTES
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login'])->name('login.perform');
@@ -35,38 +32,34 @@ Route::middleware('guest')->group(function () {
     Route::post('/register', [AuthController::class, 'register'])->name('register.perform');
 });
 
+Route::post('/logout', [AuthController::class, 'logout'])
+    ->name('logout')
+    ->middleware('auth');
 
-/*--------------------------------------------------------------------------
-| AUTHENTICATED ROUTES (USER + ADMIN)
-|--------------------------------------------------------------------------*/
-Route::middleware('auth')->group(function () {
 
-    // Logout
-    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+// =========================================================================
+// PUBLIC (AUTHENTICATED USER) ROUTES
+Route::middleware(['auth', 'can:view products'])->group(function () {
     Route::get('/products', [ProductController::class, 'index'])->name('products.index');
     Route::get('/products/{product}', [ProductController::class, 'show'])->name('products.show');
 });
 
 
-/*--------------------------------------------------------------------------
-| ADMIN ROUTES (ADMIN ONLY)
-|--------------------------------------------------------------------------*/
+// =========================================================================
+// ADMIN ROUTES
 Route::middleware(['auth', 'role:admin'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
-
         // Dashboard
         Route::get('/dashboard', [AdminProductController::class, 'dashboard'])->name('dashboard');
-
-        // CRUD Products Admin
+        // Product CRUD
         Route::resource('products', AdminProductController::class);
     });
 
 
-/*--------------------------------------------------------------------------
-| TESTING ROUTES
-|--------------------------------------------------------------------------*/
+// =========================================================================
+// TESTING ROUTES
 Route::get('/test/upload-default-image', function () {
     $localFile = storage_path('app/public/default.jpg');
     $folder = 'products';
