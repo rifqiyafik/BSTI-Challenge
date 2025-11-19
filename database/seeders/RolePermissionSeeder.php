@@ -15,10 +15,6 @@ class RolePermissionSeeder extends Seeder
      */
     public function run(): void
     {
-        // Reset cached roles and permissions
-        // app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
-
-        // Create permissions
         $permissions = [
             'view products',
             'create products',
@@ -26,34 +22,34 @@ class RolePermissionSeeder extends Seeder
             'delete products',
         ];
 
-        foreach ($permissions as $permission) {
-            Permission::create(['name' => $permission]);
-        }
+        $createdPermissions = collect($permissions)->map(function ($permission) {
+            return Permission::firstOrCreate(['name' => $permission, 'guard_name' => 'web']);
+        });
 
-        // Create roles
-        $adminRole = Role::create(['name' => 'admin']);
-        $userRole = Role::create(['name' => 'user']);
+        $adminRole = Role::firstOrCreate(['name' => 'admin']);
+        $userRole = Role::firstOrCreate(['name' => 'user']);
 
-        // Assign permissions to admin
-        $adminRole->givePermissionTo(Permission::all());
+        $adminRole->syncPermissions($createdPermissions);
 
-        // Assign permissions to user
-        $userRole->givePermissionTo('view products');
+        $viewProductsPermission = Permission::firstOrCreate(['name' => 'view products']);
+        $userRole->syncPermissions([$viewProductsPermission]);
 
-        // Create admin user
-        $admin = User::create([
-            'name' => 'Rifqi Yafik',
-            'email' => 'rifqiyafika50@gmail.com',
-            'password' => Hash::make('Yagamie_12'),
-        ]);
+        $admin = User::firstOrCreate(
+            ['email' => 'rifqiyafika50@gmail.com'], // Kriteria unik untuk mencari
+            [
+                'name' => 'Rifqi Yafik',
+                'password' => Hash::make('Yagamie_12'),
+            ]
+        );
         $admin->assignRole('admin');
 
-        // Create regular user
-        $user = User::create([
-            'name' => 'Yagamiee',
-            'email' => 'Yagamiee@gmail.com',
-            'password' => Hash::make('Yagamie_12'),
-        ]);
+        $user = User::firstOrCreate(
+            ['email' => 'Yagamiee@gmail.com'], // Kriteria unik untuk mencari
+            [
+                'name' => 'Yagamiee',
+                'password' => Hash::make('Yagamie_12'),
+            ]
+        );
         $user->assignRole('user');
     }
 }

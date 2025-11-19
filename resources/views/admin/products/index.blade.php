@@ -24,10 +24,10 @@
 @endif
 {{-- END NOTIFIKASI SUKSES/GAGAL --}}
 
-<div class="bg-white p-6 rounded shadow">
-    <table class="min-w-full bg-white border">
+<div class="p-8 rounded-2xl bg-white/50 backdrop-blur-xl shadow-xl border border-white/30">
+    <table class="min-w-full bg-white/60 backdrop-blur-xl border border-white/30 rounded-xl overflow-hidden shadow">
         <thead>
-            <tr class="bg-gray-200">
+            <tr class="bg-gradient-to-r from-purple-400 to-blue-400 text-white">
                 <th class="py-2 px-3 border">Image</th>
                 <th class="py-2 px-3 border">Name</th>
                 <th class="py-2 px-3 border">Brand</th>
@@ -66,14 +66,17 @@
                 </td>
                 <td class="py-2 px-3 border">
                     <a href="{{ route('admin.products.edit', $product->id) }}"
-                       class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600">Edit</a>
+                        class="px-3 py-1 rounded-xl bg-gradient-to-r from-yellow-400 to-orange-400
+                        text-white shadow hover:scale-105 transition"
+                        >Edit</a>
 
                     <form action="{{ route('admin.products.destroy', $product->id) }}" method="POST"
                           class="inline-block"
                           onsubmit="return confirm('Apakah Anda yakin ingin menghapus produk ini? Tindakan ini tidak dapat dibatalkan.')">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700">
+                        <button type="submit" class="px-3 py-1 rounded-xl bg-gradient-to-r from-red-500 to-red-600
+                        text-white shadow hover:scale-105 transition">
                             Delete
                         </button>
                     </form>

@@ -19,8 +19,8 @@ return new class extends Migration
             $table->text('description');
 
             $table->string('processor');
-            $table->string('ram_gb');
-            $table->string('storage_gb');
+            $table->integer('ram_gb');
+            $table->integer('storage_gb');
             $table->string('storage_type');
 
             $table->string('gpu')->nullable();

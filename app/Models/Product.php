@@ -25,7 +25,7 @@ class Product extends Model
         'image',
         'is_active'
     ];
-
+    protected const DEFAULT_IMAGE_PATH = 'products/12961362-3f89-493a-8e03-0ac954210a54.jpg';
     protected $casts = [
         'price' => 'decimal:2',
         'is_active' => 'boolean',
@@ -34,11 +34,23 @@ class Product extends Model
     // Accessor untuk mendapatkan URL gambar dari S3
     public function getImageUrlAttribute()
     {
-        if ($this->image) {
-            return Storage::disk('s3')->url($this->image);
+        $disk = Storage::disk('spaces');
+
+        // Jika produk punya gambar dan file ada di Spaces
+        if ($this->image && $disk->exists($this->image)) {
+            return $disk->url($this->image);
         }
-        return asset('images/no-image.png');
+
+        // Jika tidak ada gambar → pakai default dari Spaces
+        if ($disk->exists(self::DEFAULT_IMAGE_PATH)) {
+            return $disk->url(self::DEFAULT_IMAGE_PATH);
+        }
+
+        // Fallback terakhir (tidak akan terjadi kalau default ada)
+        return asset('storage/default.jpg');
     }
+
+
 
     public function scopeActive($query)
     {

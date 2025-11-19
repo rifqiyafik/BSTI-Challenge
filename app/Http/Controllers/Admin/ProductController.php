@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -12,7 +13,32 @@ use Illuminate\Support\Facades\Log;
 class ProductController extends Controller
 {
     // ... (index dan create tetap sama)
+    public function dashboard()
+    {
+        // Menghitung Total User
+        $totalUsers = User::count();
 
+        // Menghitung Total Product
+        $totalProducts = Product::count();
+
+        // Menghitung Total Product yang Aktif
+        $activeProducts = Product::active()->count();
+
+        // Menghitung Total Product yang Tidak Aktif
+        $inactiveProducts = $totalProducts - $activeProducts;
+
+        // Contoh lain: Total nilai inventori
+        $totalInventoryValue = Product::sum('price');
+
+
+        return view('admin.dashboard', [
+            'totalUsers' => $totalUsers,
+            'totalProducts' => $totalProducts,
+            'activeProducts' => $activeProducts,
+            'inactiveProducts' => $inactiveProducts,
+            'totalInventoryValue' => $totalInventoryValue,
+        ]);
+    }
     public function index()
     {
         $products = Product::latest()->paginate(10);

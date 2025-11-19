@@ -18,7 +18,7 @@
 </div>
 @endif
 
-<div class="bg-white p-6 shadow rounded">
+<div class="p-8 rounded-2xl bg-white/40 backdrop-blur-xl shadow-xl border border-white/30">
     <form action="{{ route('admin.products.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
 
@@ -172,9 +172,13 @@
 
         </div>
 
-        <button type="submit" class="mt-5 bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">
+        <button type="submit"
+            class="mt-6 px-6 py-3 rounded-2xl font-semibold
+            bg-gradient-to-r from-purple-500 to-blue-500
+            text-white shadow-xl hover:scale-105 transition-all">
             Save Product
         </button>
+
     </form>
 </div>
 @endsection

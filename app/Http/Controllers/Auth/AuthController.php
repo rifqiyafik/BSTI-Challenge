@@ -25,16 +25,15 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
 
-            // FIX 419: regenerate session ALWAYS
             $request->session()->regenerate();
 
-            // FIX undefined hasRole → requires HasRoles on User
             if (Auth::user()->hasRole('admin')) {
-                return redirect()->intended('/admin/dashboard');
+                return redirect('/admin/dashboard');
             }
 
-            return redirect()->intended('/products');
+            return redirect('/products'); 
         }
+
 
         return back()->withErrors([
             'email' => 'Email atau password salah.',
