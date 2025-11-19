@@ -1,23 +1,26 @@
 <?php
 
-use App\Http\Controllers\Admin\DashboardController; // Tambahkan ini
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\ProductController;
-use App\Http\Controllers\Admin\ProductController as AdminProductController; // Ganti nama agar tidak bentrok
+use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
+
 
 // ========================================================================
 // HOME REDIRECT
 // ========================================================================
 Route::get('/', function () {
     if (auth()->check()) {
-        return auth()->user()->hasRole('admin')
-            ? redirect()->route('admin.dashboard')
-            : redirect()->route('products.index');
+        if (auth()->user()->hasRole('admin')) {
+            return redirect()->route('admin.dashboard');
+        }
+        return redirect()->route('products.index');
     }
     return redirect()->route('login');
 })->name('home');
+
 
 // ========================================================================
 // AUTH ROUTES
@@ -31,8 +34,9 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::post('/logout', [AuthController::class, 'logout'])
-    ->middleware('auth')
-    ->name('logout');
+    ->name('logout')
+    ->middleware('auth');
+
 
 // ========================================================================
 // USER ROUTES (Hanya bisa melihat product)
@@ -42,28 +46,29 @@ Route::middleware(['auth', 'can:view products'])->group(function () {
     Route::get('/products/{product}', [ProductController::class, 'show'])->name('products.show');
 });
 
+
 // ========================================================================
-// ADMIN ROUTES (TANPA RESOURCE & TANPA KONFLIK)
+// ADMIN ROUTES (PERBAIKAN PENUH TANPA RESOURCE)
 // ========================================================================
 Route::middleware(['auth', 'role:admin'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
 
-        Route::get('/', fn() => redirect()->route('admin.dashboard'));
-        // Dashboard admin
-        Route::get('/dashboard', [DashboardController::class, 'index'])
-            ->name('dashboard.index');
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-        // CRUD Produk Admin
-        Route::get('/products', [AdminProductController::class, 'index'])
-            ->name('products.index');
+        // HAPUS CLOSURE
+        Route::get('/', [DashboardController::class, 'index']);
+
+        Route::get('/products', [AdminProductController::class, 'index'])->name('products.index');
         Route::get('/products/create', [AdminProductController::class, 'create'])->name('products.create');
         Route::post('/products', [AdminProductController::class, 'store'])->name('products.store');
         Route::get('/products/{product}/edit', [AdminProductController::class, 'edit'])->name('products.edit');
         Route::put('/products/{product}', [AdminProductController::class, 'update'])->name('products.update');
         Route::delete('/products/{product}', [AdminProductController::class, 'destroy'])->name('products.destroy');
     });
+
+
 
 // ========================================================================
 // TEST ROUTE
